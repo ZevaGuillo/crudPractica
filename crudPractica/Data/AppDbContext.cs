@@ -12,17 +12,34 @@ namespace crudPractica.Data
         public DbSet<TaskItem> Tasks => Set<TaskItem>();
         public DbSet<Category> Categories => Set<Category>();
 
-        public override int SaveChanges()
+
+        /// <summary>
+        /// Sobrescribe SaveChangesAsync para aplicar las reglas de auditoría
+        /// en todas las entidades que implementen IAuditable.
+        /// </summary>
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            foreach (var entry in ChangeTracker.Entries()
-                    .Where(e => e.Entity is TaskItem && (e.State == EntityState.Added || e.State == EntityState.Modified )))
+            // Busca todas las entidades en seguimiento que implementen IAuditable
+            // y que estén en estado Added (nuevas) o Modified (editadas)
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is IAuditable &&
+                            (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            DateTime now = DateTime.UtcNow;
+
+            foreach (var entry in entries)
             {
-                DateTime now = DateTime.UtcNow;
+                var auditable = (IAuditable)entry.Entity;
+
+                // Si es una entidad nueva, asignamos también la fecha de creación
                 if (entry.State == EntityState.Added)
-                    ((TaskItem)entry.Entity).CreatedAt = now;
-                ((TaskItem)entry.Entity).UpdateAt = now;
+                    auditable.CreatedAt = now;
+
+                // En ambos casos se actualiza UpdatedAt
+                auditable.UpdatedAt = now;
             }
-            return base.SaveChanges();
+
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

@@ -29,37 +29,21 @@ namespace crudPractica.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var task = await _taskService.GetByIdAsync(id);
-            if (task == null)
-                return NotFound($"Tarea con ID {id} no encontrada.");
-
-            return Ok(task);
+            return (task != null) ? Ok(task) : NotFound($"Tarea con ID {id} no encontrada.");
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskItemDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                return BadRequest("El título es obligatorio.");
-
-            try
-            {
-                var created = await _taskService.CreateAsync(dto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var created = await _taskService.CreateAsync(dto);
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _taskService.DeleteAsync(id);
-            if (!deleted)
-                return NotFound($"Tarea con ID {id} no encontrada.");
-
-            return NoContent();
+            return deleted ? NoContent() : NotFound($"Tarea con ID {id} no encontrada.");
         }
 
         [HttpPut("{id}")]
@@ -68,27 +52,17 @@ namespace crudPractica.Controllers
             if (id != dto.Id)
                 return BadRequest("El ID de la ruta no coincide con el cuerpo.");
 
-            try
-            {
-                var updated = await _taskService.UpdateAsync(dto);
-                if (!updated) return NotFound($"Tarea con ID {id} no encontrada.");
+            var updated = await _taskService.UpdateAsync(dto);
+            if (!updated) return NotFound($"Tarea con ID {id} no encontrada.");
 
-                return NoContent();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return NoContent();
         }
 
         [HttpPatch("{id}/complete")]
         public async Task<IActionResult> MarkAsCompleted(int id)
         {
             var success = await _taskService.MarkAsCompletedAsync(id);
-            if (!success)
-                return NotFound($"Tarea con ID {id} no encontrada.");
-
-            return NoContent();
+            return success ? NoContent() : NotFound($"Tarea con ID {id} no encontrada.");
         }
     }
 }

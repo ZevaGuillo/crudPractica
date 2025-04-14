@@ -35,9 +35,6 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Name))
-            return BadRequest("El nombre es obligatorio.");
-
         var created = await _categoryService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
@@ -45,8 +42,6 @@ public class CategoriesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryDto dto)
     {
-        if (id != dto.Id)
-            return BadRequest("El ID de la ruta no coincide con el del cuerpo.");
 
         var updated = await _categoryService.UpdateAsync(dto);
         if (!updated)

@@ -57,7 +57,7 @@ namespace crudPractica.Repositories.Task
             existing.Description = task.Description;
             existing.IsCompleted = task.IsCompleted;
             existing.CategoryId = task.CategoryId;
-            existing.UpdateAt = DateTime.UtcNow;
+            existing.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
