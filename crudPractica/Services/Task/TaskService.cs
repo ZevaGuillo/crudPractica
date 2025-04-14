@@ -48,19 +48,74 @@ namespace crudPractica.Services.Task
             };
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var result = await _taskRepository.DeleteAsync(id);
+            if (result)
+            {
+                _logger.LogWarning("Deleted task with ID {Id}", id);
+            }
+            return result;
         }
 
-        public Task<IEnumerable<TaskItemDto>> getAllAsync(int page, int pageSize)
+        public async Task<IEnumerable<TaskItemDto>> GetAllAsync(int page, int pageSize)
         {
-            throw new NotImplementedException();
+            var tasks = await _taskRepository.GetAllAsync(page, pageSize);
+
+            return tasks.Select(t => new TaskItemDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                IsCompleted = t.IsCompleted,
+                CategoryId = t.CategoryId,
+                CategoryName = t.Category?.Name ?? ""
+            });
         }
 
-        public Task<TaskItemDto?> GetByIdAsync(int id)
+        public async Task<TaskItemDto?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null) return null;
+
+            return new TaskItemDto
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                IsCompleted = task.IsCompleted,
+                CategoryId = task.CategoryId,
+                CategoryName = task.Category?.Name ?? ""
+            };
+        }
+
+        public async Task<bool> MarkAsCompletedAsync(int id)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null) return false;
+
+            task.IsCompleted = true;
+            await _taskRepository.UpdateAsync(task);
+            _logger.LogInformation("Marked task ID {Id} as completed", task.Id);
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(UpdateTaskItemDto dto)
+        {
+            var task = await _taskRepository.GetByIdAsync(dto.Id);
+            if (task == null) return false;
+
+            var category = await _categoryRepository.GetByIdAsync(dto.CategoryId);
+            if (category == null) throw new ArgumentException("Categoría no válida.");
+
+            task.Title = dto.Title;
+            task.Description = dto.Description;
+            task.IsCompleted = dto.IsCompleted;
+            task.CategoryId = dto.CategoryId;
+
+            await _taskRepository.UpdateAsync(task);
+            _logger.LogInformation("Updated task ID {Id}", task.Id);
+            return true;
         }
     }
 }

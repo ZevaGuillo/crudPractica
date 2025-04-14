@@ -12,8 +12,8 @@ using crudPractica.Data;
 namespace crudPractica.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250414131652_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250414151412_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,9 +44,11 @@ namespace crudPractica.Migrations
 
             modelBuilder.Entity("crudPractica.Models.TaskItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");

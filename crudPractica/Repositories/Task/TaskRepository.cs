@@ -46,5 +46,21 @@ namespace crudPractica.Repositories.Task
                 .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
+        
+
+        public async Task<bool> UpdateAsync(TaskItem task)
+        {
+            var existing = await _context.Tasks.FindAsync(task.Id);
+            if (existing == null) return false;
+
+            existing.Title = task.Title;
+            existing.Description = task.Description;
+            existing.IsCompleted = task.IsCompleted;
+            existing.CategoryId = task.CategoryId;
+            existing.UpdateAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

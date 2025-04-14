@@ -7,6 +7,8 @@ namespace crudPractica.Repositories.Task
         Task<IEnumerable<TaskItem>> GetAllAsync(int page, int pageSize);
         Task<TaskItem?> GetByIdAsync(int id);
         Task<TaskItem> CreateAsync(TaskItem task);
+        Task<bool> UpdateAsync(TaskItem task);
+
         Task<bool> DeleteAsync(int id);
     }
 }
