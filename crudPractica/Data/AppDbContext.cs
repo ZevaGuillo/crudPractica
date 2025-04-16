@@ -11,7 +11,7 @@ namespace crudPractica.Data
 
         public DbSet<TaskItem> Tasks => Set<TaskItem>();
         public DbSet<Category> Categories => Set<Category>();
-
+        public DbSet<User> Users => Set<User>();
 
         /// <summary>
         /// Sobrescribe SaveChangesAsync para aplicar las reglas de auditoría
